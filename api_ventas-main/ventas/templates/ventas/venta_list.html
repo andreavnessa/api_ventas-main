@@ -1,0 +1,50 @@
+{% extends 'ventas/base.html' %}
+
+{% block title %}Lista de Ventas{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="section-header">
+        <div>
+            <h2 class="page-title mb-1">Ventas</h2>
+            <p class="text-muted mb-0">Consulta el historial de ventas confirmadas y registra nuevas ventas con flujo rápido.</p>
+        </div>
+        <a href="{% url 'venta_create' %}" class="btn btn-primary">Realizar Venta</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Método de pago</th>
+                    <th>Estado</th>
+                    <th>Total</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venta in object_list %}
+                <tr>
+                    <td>#{{ venta.id }}</td>
+                    <td>{{ venta.cliente.nombre }}</td>
+                    <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                    <td>{{ venta.get_metodo_pago_display }}</td>
+                    <td>{{ venta.get_estado_pago_display }}</td>
+                    <td>${{ venta.total }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'venta_detail' venta.pk %}" class="btn btn-sm btn-outline-primary">Ver detalle</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No hay ventas registradas todavía.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

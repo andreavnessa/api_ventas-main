@@ -1,0 +1,13 @@
+{% extends 'ventas/base.html' %}
+
+{% block title %}Detalle de Cliente{% endblock %}
+
+{% block content %}
+<h2>Cliente: {{ object.nombre }}</h2>
+<p><strong>ID:</strong> {{ object.id }}</p>
+<p><strong>Email:</strong> {{ object.email }}</p>
+<p><strong>Teléfono:</strong> {{ object.telefono }}</p>
+<p><strong>Dirección:</strong> {{ object.direccion }}</p>
+<a href="{% url 'cliente_list' %}" class="btn btn-secondary">Volver</a>
+<a href="{% url 'cliente_update' object.pk %}" class="btn btn-warning">Editar</a>
+{% endblock %}

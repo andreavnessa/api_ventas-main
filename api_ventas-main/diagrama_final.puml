@@ -1,0 +1,115 @@
+@startuml
+
+entity LogEntry {
+  *id: integer
+  action_time: text
+  user_id: integer
+  content_type_id: integer
+  object_id: text
+  object_repr: varchar
+  action_flag: smallint unsigned
+  change_message: text
+}
+entity Permission {
+  *id: integer
+  name: varchar
+  content_type_id: integer
+  codename: varchar
+}
+entity Group {
+  *id: integer
+  name: varchar
+}
+entity User {
+  *id: integer
+  password: varchar
+  last_login: text
+  is_superuser: bool
+  username: varchar
+  first_name: varchar
+  last_name: varchar
+  email: varchar
+  is_staff: bool
+  is_active: bool
+  date_joined: text
+}
+entity ContentType {
+  *id: integer
+  app_label: varchar
+  model: varchar
+}
+entity Session {
+  *session_key: varchar
+  session_data: text
+  expire_date: text
+}
+entity ConfiguracionFiscal {
+  *id: integer
+  tasa_dolar: decimal
+  iva_porcentaje: decimal
+  activa: bool
+  actualizado_en: text
+}
+entity Cliente {
+  *id: integer
+  nombre: varchar
+  cedula: varchar
+  email: varchar
+  telefono: varchar
+}
+entity Producto {
+  *id: integer
+  nombre: varchar
+  sku: varchar
+  categoria: varchar
+  descripcion: text
+  precio: decimal
+  stock: integer unsigned
+  stock_minimo: integer unsigned
+  activo: bool
+}
+entity Venta {
+  *id: integer
+  cliente_id: integer
+  fecha: text
+  tasa_dolar_aplicada: decimal
+  iva_porcentaje_aplicado: decimal
+  subtotal_usd: decimal
+  subtotal_bs: decimal
+  iva_usd: decimal
+  iva_bs: decimal
+  total: decimal
+  total_bs: decimal
+  metodo_pago: varchar
+  referencia_pago: varchar
+  estado_pago: varchar
+}
+entity DetalleVenta {
+  *id: integer
+  venta_id: integer
+  producto_id: integer
+  cantidad: integer unsigned
+  subtotal: decimal
+}
+entity MovimientoInventario {
+  *id: integer
+  producto_id: integer
+  tipo: varchar
+  cantidad: integer unsigned
+  observacion: varchar
+  usuario_id: integer
+  fecha: text
+}
+Venta }|--|| Cliente : " "
+DetalleVenta }|--|| Venta : " "
+DetalleVenta }|--|| Producto : " "
+Group }|--|{ User : " "
+Group }|--|{ Permission : " "
+LogEntry }|--|| User : " "
+LogEntry }|--|| ContentType : " "
+MovimientoInventario }|--|| Producto : " "
+MovimientoInventario }|--|| User : " "
+User }|--|{ Permission : " "
+Permission }|--|| ContentType : " "
+
+@enduml

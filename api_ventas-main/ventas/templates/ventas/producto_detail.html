@@ -1,0 +1,13 @@
+{% extends 'ventas/base.html' %}
+
+{% block title %}Detalle de Producto{% endblock %}
+
+{% block content %}
+<h2>Producto: {{ object.nombre }}</h2>
+<p><strong>ID:</strong> {{ object.id }}</p>
+<p><strong>Descripción:</strong> {{ object.descripcion }}</p>
+<p><strong>Precio:</strong> ${{ object.precio }}</p>
+<p><strong>Stock:</strong> {{ object.stock }}</p>
+<a href="{% url 'producto_list' %}" class="btn btn-secondary">Volver</a>
+<a href="{% url 'producto_update' object.pk %}" class="btn btn-warning">Editar</a>
+{% endblock %}

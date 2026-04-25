@@ -1,0 +1,487 @@
+{% extends 'ventas/base.html' %}
+{% load static %}
+
+{% block title %}Factura / Comprobante{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --invoice-primary: #1d466f;
+        --invoice-secondary: #e0562b;
+        --invoice-muted: #6b7280;
+        --invoice-border: #d6dce3;
+        --invoice-soft: #f7f9fc;
+        --invoice-soft-2: #eef3f8;
+        --invoice-dark: #24303f;
+    }
+
+    .invoice-shell {
+        background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+        border: 1px solid var(--invoice-border);
+        border-radius: 18px;
+        box-shadow: 0 18px 40px rgba(29, 70, 111, 0.08);
+        overflow: hidden;
+    }
+
+    .invoice-header {
+        background: linear-gradient(135deg, var(--invoice-primary) 0%, #163a5d 100%);
+        color: #fff;
+        padding: 22px 24px;
+        position: relative;
+    }
+
+    .invoice-header::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 5px;
+        background: var(--invoice-secondary);
+    }
+
+    .invoice-brand {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .invoice-logo {
+        width: 92px;
+        height: 54px;
+        border: 1.5px solid rgba(255, 255, 255, 0.75);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.96);
+        flex-shrink: 0;
+        overflow: hidden;
+        padding: 6px;
+    }
+
+    .invoice-logo__img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
+    .invoice-brand__name {
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        margin: 0;
+        letter-spacing: 0.01em;
+    }
+
+    .invoice-brand__rif {
+        margin: 6px 0 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.92);
+    }
+
+    .invoice-brand__title {
+        margin: 8px 0 0;
+        font-size: 0.88rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.82);
+    }
+
+    .invoice-meta {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .invoice-meta__item {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        padding: 12px 14px;
+    }
+
+    .invoice-meta__label {
+        display: block;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(255, 255, 255, 0.72);
+        margin-bottom: 4px;
+    }
+
+    .invoice-meta__value {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #fff;
+    }
+
+    .invoice-body {
+        padding: 24px;
+    }
+
+    .invoice-card {
+        background: #fff;
+        border: 1px solid var(--invoice-border);
+        border-radius: 16px;
+        padding: 18px;
+        height: 100%;
+    }
+
+    .invoice-card__title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--invoice-border);
+    }
+
+    .invoice-card__title h5 {
+        margin: 0;
+        font-weight: 700;
+        color: var(--invoice-dark);
+    }
+
+    .invoice-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--invoice-soft-2);
+        color: var(--invoice-primary);
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .invoice-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .invoice-summary__item {
+        border-radius: 14px;
+        padding: 14px;
+        background: var(--invoice-soft);
+        border: 1px solid var(--invoice-border);
+    }
+
+    .invoice-summary__label {
+        display: block;
+        color: var(--invoice-muted);
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 6px;
+    }
+
+    .invoice-summary__value {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--invoice-dark);
+    }
+
+    .invoice-summary__value--accent {
+        color: var(--invoice-primary);
+    }
+
+    .invoice-summary__value--success {
+        color: #0f7a4d;
+    }
+
+    .invoice-table {
+        margin-bottom: 0;
+    }
+
+    .invoice-table thead th {
+        background: var(--invoice-soft-2);
+        color: var(--invoice-dark);
+        border-bottom: 1px solid var(--invoice-border);
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .invoice-table tfoot th {
+        background: #f0f4f8;
+        color: var(--invoice-dark);
+        border-top: 2px solid var(--invoice-border);
+    }
+
+    .invoice-footer {
+        margin-top: 18px;
+        padding: 18px;
+        border: 1px solid var(--invoice-border);
+        border-radius: 16px;
+        background: linear-gradient(180deg, #ffffff 0%, var(--invoice-soft) 100%);
+    }
+
+    .invoice-footer__total {
+        text-align: right;
+    }
+
+    .invoice-footer__total-label {
+        display: block;
+        color: var(--invoice-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.78rem;
+        margin-bottom: 4px;
+    }
+
+    .invoice-footer__total-value {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--invoice-primary);
+        line-height: 1;
+    }
+
+    .no-print {
+        display: block;
+    }
+
+    @media print {
+        .no-print,
+        .navbar,
+        .btn,
+        .section-header {
+            display: none !important;
+        }
+
+        body {
+            background: #fff !important;
+        }
+
+        .content-card,
+        .invoice-shell,
+        .invoice-card,
+        .invoice-footer {
+            box-shadow: none !important;
+        }
+
+        .content-card {
+            border: none !important;
+            padding: 0 !important;
+            background: #fff !important;
+        }
+
+        .invoice-shell {
+            border: none !important;
+            border-radius: 0 !important;
+        }
+
+        .invoice-header {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .invoice-body {
+            padding: 0 !important;
+        }
+
+        .table td,
+        .table th {
+            background: #fff !important;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .invoice-meta,
+        .invoice-summary {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .invoice-meta,
+        .invoice-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .invoice-brand__name {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="content-card print-area">
+    <div class="section-header no-print">
+        <div>
+            <h2 class="page-title mb-1">Factura / Comprobante</h2>
+            <p class="text-muted mb-0">Formato imprimible con membrete, datos del cliente y detalle completo de la venta.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="button" class="btn btn-primary" onclick="window.print()">Imprimir comprobante</button>
+            <a href="{% url 'venta_list' %}" class="btn btn-outline-secondary">Volver</a>
+        </div>
+    </div>
+
+    <div class="invoice-shell">
+        <div class="invoice-header">
+            <div class="invoice-brand">
+                <div class="invoice-logo">
+                    <img src="{% static 'ventas/img/logo.png' %}" alt="Logo de Dr. Antojos" class="invoice-logo__img">
+                </div>
+                <div>
+                    <h1 class="invoice-brand__name">Dr. Antojos</h1>
+                    <p class="invoice-brand__rif mb-0">RIF: J506024500</p>
+                    <p class="invoice-brand__title">Factura / Comprobante</p>
+                </div>
+            </div>
+
+            <div class="invoice-meta">
+                <div class="invoice-meta__item">
+                    <span class="invoice-meta__label">Factura</span>
+                    <span class="invoice-meta__value">#{{ object.id }}</span>
+                </div>
+                <div class="invoice-meta__item">
+                    <span class="invoice-meta__label">Fecha</span>
+                    <span class="invoice-meta__value">{{ object.fecha|date:"d/m/Y H:i" }}</span>
+                </div>
+                <div class="invoice-meta__item">
+                    <span class="invoice-meta__label">Estado</span>
+                    <span class="invoice-meta__value">{{ object.get_estado_pago_display }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="invoice-body">
+            <div class="row g-4 mb-4">
+                <div class="col-lg-7">
+                    <div class="invoice-card h-100">
+                        <div class="invoice-card__title">
+                            <h5>Datos de la venta</h5>
+                            <span class="invoice-badge">Venta confirmada</span>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <strong>Comprobante:</strong>
+                                <div>{{ object.id }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Fecha:</strong>
+                                <div>{{ object.fecha|date:"d/m/Y H:i" }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Método de pago:</strong>
+                                <div>{{ object.get_metodo_pago_display }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Referencia:</strong>
+                                <div>{{ object.referencia_pago|default:"-" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="invoice-card h-100">
+                        <div class="invoice-card__title">
+                            <h5>Cliente</h5>
+                            <span class="invoice-badge">Datos fiscales</span>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <strong>Nombre:</strong>
+                                <div>{{ object.cliente.nombre }}</div>
+                            </div>
+                            <div class="col-12">
+                                <strong>C.I. / Cédula:</strong>
+                                <div>{{ object.cliente.cedula|default:"-" }}</div>
+                            </div>
+                            <div class="col-12">
+                                <strong>Email:</strong>
+                                <div>{{ object.cliente.email }}</div>
+                            </div>
+                            <div class="col-12">
+                                <strong>Teléfono:</strong>
+                                <div>{{ object.cliente.telefono|default:"-" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="invoice-summary">
+                <div class="invoice-summary__item">
+                    <span class="invoice-summary__label">Líneas vendidas</span>
+                    <span class="invoice-summary__value">{{ object.detalles.count }}</span>
+                </div>
+                <div class="invoice-summary__item">
+                    <span class="invoice-summary__label">Unidades totales</span>
+                    <span class="invoice-summary__value">{{ unidades_totales }}</span>
+                </div>
+                <div class="invoice-summary__item">
+                    <span class="invoice-summary__label">Total final</span>
+                    <span class="invoice-summary__value invoice-summary__value--accent">${{ object.total }}</span>
+                </div>
+            </div>
+
+            <div class="invoice-card">
+                <div class="invoice-card__title">
+                    <h5>Detalle de productos</h5>
+                    <span class="invoice-badge">Desglose</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table invoice-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Producto</th>
+                                <th>SKU</th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-end">Precio unitario</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in object.detalles.all %}
+                            <tr>
+                                <td class="fw-semibold">{{ forloop.counter }}</td>
+                                <td>{{ detalle.producto.nombre }}</td>
+                                <td>{{ detalle.producto.sku|default:"-" }}</td>
+                                <td class="text-center">{{ detalle.cantidad }}</td>
+                                <td class="text-end">${{ detalle.producto.precio }}</td>
+                                <td class="text-end">${{ detalle.subtotal }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="5" class="text-end">Total</th>
+                                <th class="text-end">${{ object.total }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div class="invoice-footer">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-8">
+                        <strong>Observación del comprobante:</strong>
+                        <div class="text-muted small">
+                            Este documento resume todos los productos incluidos en la compra confirmada y conserva el estilo de factura con membrete, RIF y espacio para logo.
+                        </div>
+                    </div>
+                    <div class="col-md-4 invoice-footer__total">
+                        <span class="invoice-footer__total-label">Importe final</span>
+                        <div class="invoice-footer__total-value">${{ object.total }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

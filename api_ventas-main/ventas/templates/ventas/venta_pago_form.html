@@ -1,0 +1,171 @@
+{% extends 'ventas/base.html' %}
+{% load static %}
+
+{% block title %}Confirmar Pago{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="section-header">
+        <div>
+            <h2 class="page-title mb-1">Confirmar Pago</h2>
+            <p class="text-muted mb-0">Revisa el resumen completo de la compra, verifica todas las líneas cargadas y confirma manualmente si el pago fue recibido.</p>
+        </div>
+        <a href="{% url 'venta_create' %}" class="btn btn-outline-secondary">Volver al paso anterior</a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <form method="post" class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.metodo_pago.id_for_label }}" class="form-label fw-semibold">{{ form.metodo_pago.label }}</label>
+                        {{ form.metodo_pago }}
+                        {% for error in form.metodo_pago.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.referencia_pago.id_for_label }}" class="form-label fw-semibold">{{ form.referencia_pago.label }}</label>
+                        {{ form.referencia_pago }}
+                        {% if form.referencia_pago.help_text %}
+                        <div class="form-text">{{ form.referencia_pago.help_text }}</div>
+                        {% endif %}
+                        {% for error in form.referencia_pago.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="alert alert-warning mb-0">
+                        Para <strong>transferencia</strong> o <strong>pago móvil</strong> debes registrar el número de referencia antes de confirmar.
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white d-flex justify-content-end gap-2">
+                    <button type="submit" name="cancelar" value="1" class="btn btn-outline-danger">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Pago realizado</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="border rounded-3 bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 92px; height: 54px; padding: 6px;">
+                                <img src="{% static 'ventas/img/logo.png' %}" alt="Logo de Dr. Antojos" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                            </div>
+                            <div>
+                                <h5 class="mb-0">Resumen de la venta</h5>
+                                <small class="text-muted">Factura / comprobante previo a la confirmación</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-success align-self-start">{{ resumen.items|length }} línea{{ resumen.items|length|pluralize }}</span>
+                    </div>
+
+                    <p class="mb-2"><strong>Cliente:</strong> {{ resumen.cliente_nombre }}</p>
+                    <p class="mb-2"><strong>C.I. / Cédula:</strong> {{ resumen.cliente_cedula }}</p>
+                    <p class="mb-2"><strong>Email:</strong> {{ resumen.cliente_email }}</p>
+                    <p class="mb-3"><strong>Teléfono:</strong> {{ resumen.cliente_telefono|default:"-" }}</p>
+
+                    <div class="border rounded-3 p-3 bg-light mb-3">
+                        <h6 class="mb-3">Resumen fiscal</h6>
+                        <div class="row g-2 small">
+                            <div class="col-6">
+                                <strong>Tasa dólar:</strong><br>
+                                Bs. {{ resumen.tasa_dolar }}
+                            </div>
+                            <div class="col-6">
+                                <strong>IVA:</strong><br>
+                                {{ resumen.iva_porcentaje }}%
+                            </div>
+                            <div class="col-6">
+                                <strong>Subtotal:</strong><br>
+                                ${{ resumen.subtotal_usd }}
+                            </div>
+                            <div class="col-6">
+                                <strong>Subtotal Bs:</strong><br>
+                                Bs. {{ resumen.subtotal_bs }}
+                            </div>
+                            <div class="col-6">
+                                <strong>IVA:</strong><br>
+                                ${{ resumen.iva_usd }}
+                            </div>
+                            <div class="col-6">
+                                <strong>IVA Bs:</strong><br>
+                                Bs. {{ resumen.iva_bs }}
+                            </div>
+                            <div class="col-12">
+                                <strong>Total a cobrar:</strong><br>
+                                <span class="fw-semibold">${{ resumen.total_usd }} / Bs. {{ resumen.total_bs }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Artículo</th>
+                                    <th class="text-center">Cant.</th>
+                                    <th class="text-end">P. unit. USD</th>
+                                    <th class="text-end">P. unit. Bs</th>
+                                    <th class="text-end">Subtotal USD</th>
+                                    <th class="text-end">Subtotal Bs</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in resumen.items %}
+                                <tr>
+                                    <td class="fw-semibold">{{ forloop.counter }}</td>
+                                    <td>
+                                        <div class="fw-semibold">{{ item.producto_nombre }}</div>
+                                        <small class="text-muted">SKU: {{ item.sku }}</small>
+                                    </td>
+                                    <td class="text-center">{{ item.cantidad }}</td>
+                                    <td class="text-end">${{ item.precio_usd }}</td>
+                                    <td class="text-end">Bs. {{ item.precio_bs }}</td>
+                                    <td class="text-end">${{ item.subtotal_usd }}</td>
+                                    <td class="text-end">Bs. {{ item.subtotal_bs }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="5" class="text-end">Subtotal</th>
+                                    <th class="text-end">${{ resumen.subtotal_usd }}</th>
+                                    <th class="text-end">Bs. {{ resumen.subtotal_bs }}</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="5" class="text-end">IVA ({{ resumen.iva_porcentaje }}%)</th>
+                                    <th class="text-end">${{ resumen.iva_usd }}</th>
+                                    <th class="text-end">Bs. {{ resumen.iva_bs }}</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="5" class="text-end">Total a cobrar</th>
+                                    <th class="text-end">${{ resumen.total_usd }}</th>
+                                    <th class="text-end">Bs. {{ resumen.total_bs }}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="small text-muted mt-2">
+                        Este resumen servirá como base para el comprobante imprimible después de confirmar el pago.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

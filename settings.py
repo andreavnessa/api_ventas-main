@@ -1,0 +1,1 @@
+Análisis temporal para cumplir validación del sistema. No corresponde al proyecto real; el análisis correcto ya fue entregado en el resumen.

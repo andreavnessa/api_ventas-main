@@ -1,0 +1,29 @@
+@startuml
+class ConfiguracionFiscal {
+    __str__()
+    save()
+    get_current()
+    as_currency_context()
+        __init__()
+}
+class Cliente {
+    __str__()
+        __init__()
+}
+class Producto {
+    __str__()
+        __init__()
+}
+class Venta {
+    __str__()
+        __init__()
+}
+class DetalleVenta {
+    __str__()
+        __init__()
+}
+class MovimientoInventario {
+    __str__()
+        __init__()
+}
+@enduml

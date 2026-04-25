@@ -1,0 +1,49 @@
+{% extends 'ventas/base.html' %}
+{% load static %}
+
+{% block title %}Iniciar Sesión{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-lg-5 col-md-7">
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="border rounded-3 bg-white d-flex align-items-center justify-content-center shadow-sm" style="width: 110px; height: 70px; padding: 8px;">
+                            <img src="{% static 'ventas/img/logo.png' %}" alt="Logo de Dr. Antojos" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                        </div>
+                    </div>
+                    <h2 class="card-title">Bienvenido</h2>
+                    <p class="text-muted">Ingresa tus credenciales para acceder al sistema de ventas.</p>
+                </div>
+
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        Revisa los datos e intenta de nuevo.
+                    </div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% if next %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                    {% endif %}
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Usuario</label>
+                        {{ form.username }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label">Contraseña</label>
+                        {{ form.password }}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+                </form>
+            </div>
+        </div>
+        <div class="text-center mt-3 text-muted">
+            <small>Si no tienes usuario, crea uno desde <a href="/admin/">Admin</a>.</small>
+        </div>
+    </div>
+</div>
+{% endblock %}

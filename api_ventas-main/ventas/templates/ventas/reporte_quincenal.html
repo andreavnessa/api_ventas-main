@@ -1,0 +1,287 @@
+{% extends 'ventas/base.html' %}
+
+{% block title %}Reporte quincenal{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="section-header">
+        <div>
+            <h2 class="page-title mb-1">Reporte quincenal</h2>
+            <p class="text-muted mb-0">
+                Resumen completo de ventas del período {{ periodo.fecha_inicio|date:"d/m/Y" }} al {{ periodo.fecha_fin|date:"d/m/Y" }}.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Volver al dashboard</a>
+            <a href="{% url 'venta_list' %}" class="btn btn-outline-primary">Ver ventas</a>
+            <a
+                href="?anio={{ periodo.anio }}&mes={{ periodo.mes }}&quincena={{ periodo.quincena }}&formato=pdf"
+                class="btn btn-danger"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Descargar PDF
+            </a>
+        </div>
+    </div>
+
+    <form method="get" class="row g-3 align-items-end mb-4">
+        <div class="col-md-3">
+            <label for="anio" class="form-label">Año</label>
+            <input type="number" class="form-control" id="anio" name="anio" value="{{ periodo.anio }}" min="2000" max="2100">
+        </div>
+        <div class="col-md-3">
+            <label for="mes" class="form-label">Mes</label>
+            <select class="form-select" id="mes" name="mes">
+                <option value="1" {% if periodo.mes == 1 %}selected{% endif %}>Enero</option>
+                <option value="2" {% if periodo.mes == 2 %}selected{% endif %}>Febrero</option>
+                <option value="3" {% if periodo.mes == 3 %}selected{% endif %}>Marzo</option>
+                <option value="4" {% if periodo.mes == 4 %}selected{% endif %}>Abril</option>
+                <option value="5" {% if periodo.mes == 5 %}selected{% endif %}>Mayo</option>
+                <option value="6" {% if periodo.mes == 6 %}selected{% endif %}>Junio</option>
+                <option value="7" {% if periodo.mes == 7 %}selected{% endif %}>Julio</option>
+                <option value="8" {% if periodo.mes == 8 %}selected{% endif %}>Agosto</option>
+                <option value="9" {% if periodo.mes == 9 %}selected{% endif %}>Septiembre</option>
+                <option value="10" {% if periodo.mes == 10 %}selected{% endif %}>Octubre</option>
+                <option value="11" {% if periodo.mes == 11 %}selected{% endif %}>Noviembre</option>
+                <option value="12" {% if periodo.mes == 12 %}selected{% endif %}>Diciembre</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="quincena" class="form-label">Quincena</label>
+            <select class="form-select" id="quincena" name="quincena">
+                <option value="1" {% if periodo.quincena == 1 %}selected{% endif %}>Primera (1 al 15)</option>
+                <option value="2" {% if periodo.quincena == 2 %}selected{% endif %}>Segunda (16 al final)</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-grid">
+            <button type="submit" class="btn btn-primary">Actualizar reporte</button>
+        </div>
+    </form>
+
+    <div class="d-flex gap-2 flex-wrap mb-4">
+        <a class="btn btn-outline-secondary" href="?anio={{ periodo_anterior.anio }}&mes={{ periodo_anterior.mes }}&quincena={{ periodo_anterior.quincena }}">← Período anterior</a>
+        <a class="btn btn-outline-secondary" href="?anio={{ periodo_siguiente.anio }}&mes={{ periodo_siguiente.mes }}&quincena={{ periodo_siguiente.quincena }}">Período siguiente →</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="border rounded p-3 h-100 bg-light">
+                <div class="small text-muted">Período</div>
+                <div class="fs-5 fw-bold">{{ periodo.label }}</div>
+                <div class="small text-muted">{{ periodo.fecha_inicio|date:"d/m/Y" }} - {{ periodo.fecha_fin|date:"d/m/Y" }}</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="border rounded p-3 h-100 bg-light">
+                <div class="small text-muted">Ventas registradas</div>
+                <div class="fs-3 fw-bold text-primary">{{ resumen.ventas_registradas }}</div>
+                <div class="small text-muted">Incluye pagadas, pendientes y canceladas</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="border rounded p-3 h-100 bg-light">
+                <div class="small text-muted">Ventas pagadas</div>
+                <div class="fs-3 fw-bold text-success">{{ resumen.ventas_pagadas }}</div>
+                <div class="small text-muted">Confirmadas y cobradas</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="border rounded p-3 h-100 bg-light">
+                <div class="small text-muted">Total cobrado</div>
+                <div class="fs-3 fw-bold text-success">${{ resumen.total_cobrado_usd }}</div>
+                <div class="small text-muted">Bs {{ resumen.total_cobrado_bs }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="border rounded p-3 h-100 bg-light">
+                <div class="small text-muted">Subtotal</div>
+                <div class="fs-4 fw-bold">${{ resumen.subtotal_usd }}</div>
+                <div class="small text-muted">Bs {{ resumen.subtotal_bs }}</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="border rounded p-3 h-100 bg-light">
+                <div class="small text-muted">IVA</div>
+                <div class="fs-4 fw-bold">${{ resumen.iva_usd }}</div>
+                <div class="small text-muted">Bs {{ resumen.iva_bs }}</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="border rounded p-3 h-100 bg-light">
+                <div class="small text-muted">Ticket promedio</div>
+                <div class="fs-4 fw-bold">${{ resumen.ticket_promedio_usd }}</div>
+                <div class="small text-muted">Bs {{ resumen.ticket_promedio_bs }}</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="border rounded p-3 h-100 bg-light">
+                <div class="small text-muted">Unidades vendidas</div>
+                <div class="fs-4 fw-bold">{{ resumen.total_unidades_vendidas }}</div>
+                <div class="small text-muted">Productos facturados en la quincena</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="border rounded p-3 h-100 bg-light">
+                <div class="small text-muted">Pendientes</div>
+                <div class="fs-4 fw-bold text-warning">{{ resumen.ventas_pendientes }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-3 h-100 bg-light">
+                <div class="small text-muted">Canceladas</div>
+                <div class="fs-4 fw-bold text-danger">{{ resumen.ventas_canceladas }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-3 h-100 bg-light">
+                <div class="small text-muted">Total facturado</div>
+                <div class="fs-4 fw-bold text-primary">${{ resumen.total_facturado_usd }}</div>
+                <div class="small text-muted">Bs {{ resumen.total_facturado_bs }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="border rounded p-4 h-100 bg-white">
+                <h4 class="mb-3">Métodos de pago</h4>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Método</th>
+                                <th class="text-center">Ventas</th>
+                                <th class="text-end">Total USD</th>
+                                <th class="text-end">Total Bs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in medios_pago %}
+                            <tr>
+                                <td>{{ item.metodo_pago|default:"N/A" }}</td>
+                                <td class="text-center">{{ item.cantidad }}</td>
+                                <td class="text-end">${{ item.total_usd|default:"0.00" }}</td>
+                                <td class="text-end">Bs {{ item.total_bs|default:"0.00" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">No hay ventas pagadas en este período.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="border rounded p-4 h-100 bg-white">
+                <h4 class="mb-3">Productos más vendidos</h4>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-center">Unidades</th>
+                                <th class="text-end">Subtotal USD</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for producto in productos_top %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">{{ producto.producto__nombre }}</div>
+                                    <div class="small text-muted">{{ producto.producto__sku|default:"Sin SKU" }}</div>
+                                </td>
+                                <td class="text-center">{{ producto.unidades }}</td>
+                                <td class="text-end">${{ producto.subtotal_usd|default:"0.00" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-4">No hay productos vendidos en este período.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="border rounded p-4 bg-white">
+        <div class="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
+            <div>
+                <h4 class="mb-1">Detalle de ventas</h4>
+                <p class="text-muted mb-0">Desglose de cada venta registrada durante la quincena.</p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Venta</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Método</th>
+                        <th>Subtotal</th>
+                        <th>IVA</th>
+                        <th>Total</th>
+                        <th class="text-end">Detalle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in ventas_detalladas %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">#{{ item.venta.id }}</div>
+                            <div class="small text-muted">{{ item.unidades }} unidades</div>
+                        </td>
+                        <td>{{ item.venta.cliente.nombre }}</td>
+                        <td>{{ item.venta.fecha|date:"d/m/Y H:i" }}</td>
+                        <td>{{ item.venta.get_estado_pago_display }}</td>
+                        <td>{{ item.venta.get_metodo_pago_display }}</td>
+                        <td>${{ item.venta.subtotal_usd|default:item.venta.total }}</td>
+                        <td>${{ item.venta.iva_usd|default:"0.00" }}</td>
+                        <td>
+                            <div class="fw-semibold">${{ item.venta.total }}</div>
+                            <div class="small text-muted">Bs {{ item.venta.total_bs|default:"0.00" }}</div>
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'venta_detail' item.venta.pk %}" class="btn btn-sm btn-outline-primary">Ver venta</a>
+                        </td>
+                    </tr>
+                    <tr class="bg-light">
+                        <td colspan="9">
+                            <div class="small text-muted mb-2">Productos incluidos en esta venta:</div>
+                            <ul class="mb-0 small">
+                                {% for detalle in item.detalles %}
+                                <li>
+                                    {{ detalle.producto.nombre }} —
+                                    Cantidad: {{ detalle.cantidad }} —
+                                    Subtotal USD: ${{ detalle.subtotal|default:"0.00" }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">No existen ventas registradas para esta quincena.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
