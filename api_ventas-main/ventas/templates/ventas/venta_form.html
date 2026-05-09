@@ -80,7 +80,39 @@
 
             {{ items_formset.management_form }}
 
-            <div class="row g-3">
+            {# Template (prototype) para agregar nuevas líneas #}
+            <script type="text/template" id="empty-item-line-template">
+                <div class="col-12">
+                    <div class="border rounded-3 p-3 bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <span class="badge bg-secondary">Línea __LINE_NUM__</span>
+                                <span class="small text-muted ms-2">Producto __LINE_NUM__ de la venta</span>
+                            </div>
+                            <div class="form-check">
+                                __DELETE_HTML__
+                                <label class="form-check-label">Omitir esta línea</label>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 align-items-start">
+                            <div class="col-lg-8">
+                                <label class="form-label fw-semibold">__PRODUCTO_LABEL__</label>
+                                __PRODUCTO_HTML__
+                                <div class="form-text">La lista muestra nombre, SKU, stock disponible y precio actual.</div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label class="form-label fw-semibold">__CANTIDAD_LABEL__</label>
+                                __CANTIDAD_HTML__
+                                <div class="form-text">Indica cuántas unidades llevará esta línea.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </script>
+
+            <div class="row g-3" id="items-formset-lines">
                 {% for item_form in items_formset %}
                 <div class="col-12">
                     <div class="border rounded-3 p-3 {% if item_form.errors %}border-danger{% else %}bg-light{% endif %}">
@@ -124,6 +156,57 @@
                 </div>
                 {% endfor %}
             </div>
+
+            <div class="d-flex justify-content-end mb-3">
+                <button type="button" id="add-item-line" class="btn btn-outline-primary">
+                    + Agregar producto
+                </button>
+            </div>
+
+            <script>
+                (function () {
+                    const addBtn = document.getElementById('add-item-line');
+                    const totalFormsInput = document.getElementById('id_items-TOTAL_FORMS');
+                    const linesContainer = document.getElementById('items-formset-lines');
+                    const templateEl = document.getElementById('empty-item-line-template');
+
+                    // Si por algún motivo no existe el input (cambio de prefijo), no hacemos nada.
+                    if (!addBtn || !totalFormsInput || !linesContainer || !templateEl) return;
+
+                    const productoHtml = `{% filter escapejs %}{{ items_formset.empty_form.producto }}{% endfilter %}`;
+                    const cantidadHtml = `{% filter escapejs %}{{ items_formset.empty_form.cantidad }}{% endfilter %}`;
+                    const deleteHtml = `{% filter escapejs %}{{ items_formset.empty_form.DELETE }}{% endfilter %}`;
+
+                    const productoLabel = `{% filter escapejs %}{{ items_formset.empty_form.producto.label }}{% endfilter %}`;
+                    const cantidadLabel = `{% filter escapejs %}{{ items_formset.empty_form.cantidad.label }}{% endfilter %}`;
+
+                    const baseTemplate = templateEl.innerHTML;
+
+                    function addLine() {
+                        const index = parseInt(totalFormsInput.value, 10);
+                        const lineNum = index + 1;
+
+                        // Asegura que el formset reciba un índice válido.
+                        totalFormsInput.value = index + 1;
+
+                        let html = baseTemplate;
+
+                        // Reemplazamos el prefijo __prefix__ del empty_form por el índice actual
+                        // (Django usa "__prefix__" en empty_form).
+                        html = html.replace(/__PRODUCTO_HTML__/g, productoHtml.replace(/__prefix__/g, index));
+                        html = html.replace(/__CANTIDAD_HTML__/g, cantidadHtml.replace(/__prefix__/g, index));
+                        html = html.replace(/__DELETE_HTML__/g, deleteHtml.replace(/__prefix__/g, index));
+
+                        html = html.replace(/__PRODUCTO_LABEL__/g, productoLabel);
+                        html = html.replace(/__CANTIDAD_LABEL__/g, cantidadLabel);
+                        html = html.replace(/__LINE_NUM__/g, String(lineNum));
+
+                        linesContainer.insertAdjacentHTML('beforeend', html);
+                    }
+
+                    addBtn.addEventListener('click', addLine);
+                })();
+            </script>
 
             <div class="alert alert-info mt-4 mb-0">
                 <strong>Siguiente paso:</strong> después de guardar esta información podrás revisar el resumen completo de la compra y confirmar el método de pago.

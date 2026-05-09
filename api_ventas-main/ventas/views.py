@@ -24,7 +24,7 @@ from rest_framework.views import APIView
 
 from .fiscal import calculate_invoice_amounts, calculate_line_amounts, get_current_fiscal_values, to_money
 from .filters import ClienteFilter, ProductoFilter, VentaFilter
-from .forms import PagoVentaForm, PrecioForm, ProductoForm, StockCargaForm, VentaForm, VentaItemFormSet
+from .forms import PagoVentaForm, PrecioForm, ProductoForm, StockCargaForm, VentaForm, VentaItemFormSet, ClienteForm
 from .models import Cliente, DetalleVenta, MovimientoInventario, Producto, Venta
 from .pagination import StandardResultsSetPagination
 from .pdf_utils import build_quincenal_report_pdf
@@ -445,14 +445,14 @@ class ClienteDetailView(LoginRequiredMixin, DetailView):
 class ClienteCreateView(LoginRequiredMixin, CreateView):
     model = Cliente
     template_name = 'ventas/cliente_form.html'
-    fields = ['nombre', 'cedula', 'email', 'telefono']
+    form_class = ClienteForm
     success_url = reverse_lazy('cliente_list')
 
 
 class ClienteUpdateView(LoginRequiredMixin, UpdateView):
     model = Cliente
     template_name = 'ventas/cliente_form.html'
-    fields = ['nombre', 'cedula', 'email', 'telefono']
+    form_class = ClienteForm
     success_url = reverse_lazy('cliente_list')
 
 

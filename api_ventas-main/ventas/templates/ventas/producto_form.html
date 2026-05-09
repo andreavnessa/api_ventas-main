@@ -3,11 +3,105 @@
 {% block title %}{% if object %}Editar{% else %}Crear{% endif %} Producto{% endblock %}
 
 {% block content %}
-<h2>{% if object %}Editar{% else %}Crear{% endif %} Producto</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a href="{% url 'producto_list' %}" class="btn btn-secondary">Cancelar</a>
-</form>
+<div class="content-card">
+    <div class="section-header">
+        <div>
+            <h2 class="page-title mb-1">{% if object %}Editar{% else %}Crear{% endif %} Producto</h2>
+            <p class="text-muted mb-0">Completa los datos del producto, su precio, stock y estado.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'producto_list' %}" class="btn btn-outline-secondary">Volver a lista</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
+                        {{ form.nombre }}
+                        {% for error in form.nombre.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="{{ form.sku.id_for_label }}">{{ form.sku.label }}</label>
+                        {{ form.sku }}
+                        {% for error in form.sku.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}</label>
+                        {{ form.categoria }}
+                        {% for error in form.categoria.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="{{ form.precio.id_for_label }}">{{ form.precio.label }}</label>
+                        {{ form.precio }}
+                        {% for error in form.precio.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold" for="{{ form.stock.id_for_label }}">{{ form.stock.label }}</label>
+                        {{ form.stock }}
+                        {% for error in form.stock.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold" for="{{ form.stock_minimo.id_for_label }}">{{ form.stock_minimo.label }}</label>
+                        {{ form.stock_minimo }}
+                        {% for error in form.stock_minimo.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-end">
+                        <div>
+                            <label class="form-label fw-semibold" for="{{ form.activo.id_for_label }}">{{ form.activo.label }}</label>
+                            <div class="form-check mt-2">
+                                {{ form.activo }}
+                                <label class="form-check-label" for="{{ form.activo.id_for_label }}">Activo</label>
+                            </div>
+                            {% for error in form.activo.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold" for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+                        {{ form.descripcion }}
+                        {% for error in form.descripcion.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{% url 'producto_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

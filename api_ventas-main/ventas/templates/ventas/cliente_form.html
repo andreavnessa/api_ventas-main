@@ -3,11 +3,68 @@
 {% block title %}{% if object %}Editar{% else %}Crear{% endif %} Cliente{% endblock %}
 
 {% block content %}
-<h2>{% if object %}Editar{% else %}Crear{% endif %} Cliente</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a href="{% url 'cliente_list' %}" class="btn btn-secondary">Cancelar</a>
-</form>
+<div class="content-card">
+    <div class="section-header">
+        <div>
+            <h2 class="page-title mb-1">{% if object %}Editar{% else %}Crear{% endif %} Cliente</h2>
+            <p class="text-muted mb-0">Completa los datos del cliente: nombre, cédula, email y teléfono.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'cliente_list' %}" class="btn btn-outline-secondary">Volver a lista</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
+                        {{ form.nombre }}
+                        {% for error in form.nombre.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="{{ form.cedula.id_for_label }}">{{ form.cedula.label }}</label>
+                        {{ form.cedula }}
+                        {% for error in form.cedula.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                        {{ form.email }}
+                        {% for error in form.email.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="{{ form.telefono.id_for_label }}">{{ form.telefono.label }}</label>
+                        {{ form.telefono }}
+                        {% for error in form.telefono.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{% url 'cliente_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
